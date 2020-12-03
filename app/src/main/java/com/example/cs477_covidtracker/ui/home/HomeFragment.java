@@ -22,6 +22,8 @@ import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
 
+import java.util.ArrayList;
+
 public class HomeFragment extends Fragment {
 
     private HomeViewModel homeViewModel;
@@ -32,17 +34,29 @@ public class HomeFragment extends Fragment {
         protected Object doInBackground(Object[] objects) {
             OkHttpClient client = new OkHttpClient();
 
-            Request request = new Request.Builder()
+        /*  Request request = new Request.Builder()
                     .url("https://covidti.com/api/public/us/timeseries/Virginia/Fairfax")
                     .method("GET", null)
-                    .addHeader("Cookie", "__cfduid=d643853aa641016922decbeeaf960a3121604966690")
+                    .addHeader("Cookie", "__cfduid=d643853aa641016922decbeeaf960a3121604966690; Cookie_1=value")
                     .build();
-            Response response;
+            Response response;*/
             try {
-                response = client.newCall(request).execute();
+                Request request = new Request.Builder()
+                        .url("https://covidti.com/api/public/us/timeseries/Virginia/Fairfax")
+                        .method("GET", null)
+                        .addHeader("Cookie", "__cfduid=d643853aa641016922decbeeaf960a3121604966690; Cookie_2=value")
+                        .build();
+                Response response = client.newCall(request).execute();
                 String test = response.body().string();
+                ArrayList<int[]> timestamps = jsonParser.filterTimeSeriesResults(test);
+
+                for(int[] time : timestamps){
+
+                }
+
                 return null;
             }catch (Exception e){
+                e.printStackTrace();
             }
             return null;
         }
@@ -74,7 +88,7 @@ public class HomeFragment extends Fragment {
 
             }
         });
-
+        new fetch().execute();
         return root;
     }
 }
