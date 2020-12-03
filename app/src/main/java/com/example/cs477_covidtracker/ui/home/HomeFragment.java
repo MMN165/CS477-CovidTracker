@@ -1,5 +1,8 @@
 package com.example.cs477_covidtracker.ui.home;
 
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -9,6 +12,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -18,21 +22,57 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 
 import com.example.cs477_covidtracker.R;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
 
 import java.util.ArrayList;
+import java.util.concurrent.Executor;
 
 public class HomeFragment extends Fragment {
 
     private HomeViewModel homeViewModel;
 
     private class fetch extends AsyncTask {
-
         @Override
         protected Object doInBackground(Object[] objects) {
-            OkHttpClient client = new OkHttpClient();
+            try {
+                Task<Location> local = locclient.getLastLocation();
+                local.addOnCompleteListener((Executor) this, new OnCompleteListener<Location>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Location> task) {
+                        if(task.isSuccessful()){
+                            Location lastKnownLocation = task.getResult();
+                            try {
+                                OkHttpClient client = new OkHttpClient();
+                                Request request = new Request.Builder()
+                                        .url("https://covidti.com/api/public/us/timeseries/Virginia/Fairfax")
+                                        .method("GET", null)
+                                        .addHeader("Cookie", "__cfduid=d643853aa641016922decbeeaf960a3121604966690; Cookie_2=value")
+                                        .build();
+                                Response response = client.newCall(request).execute();
+                                String test = response.body().string();
+                                ArrayList<int[]> timestamps = jsonParser.filterTimeSeriesResults(test);
+                                for(int[] time : timestamps){
+
+                                }
+
+                            }catch (Exception e){
+                                e.printStackTrace();
+                            }
+
+                        }
+                    }
+                });
+            }catch(SecurityException e){
+                e.printStackTrace();
+                Toast.makeText(getContext(), "No Permissions!", Toast.LENGTH_SHORT).show();
+            }
+
 
         /*  Request request = new Request.Builder()
                     .url("https://covidti.com/api/public/us/timeseries/Virginia/Fairfax")
@@ -41,6 +81,7 @@ public class HomeFragment extends Fragment {
                     .build();
             Response response;*/
             try {
+                OkHttpClient client = new OkHttpClient();
                 Request request = new Request.Builder()
                         .url("https://covidti.com/api/public/us/timeseries/Virginia/Fairfax")
                         .method("GET", null)
@@ -49,21 +90,22 @@ public class HomeFragment extends Fragment {
                 Response response = client.newCall(request).execute();
                 String test = response.body().string();
                 ArrayList<int[]> timestamps = jsonParser.filterTimeSeriesResults(test);
-
                 for(int[] time : timestamps){
 
                 }
 
-                return null;
             }catch (Exception e){
                 e.printStackTrace();
             }
+
+
             return null;
         }
     }
 
     ListView favorites;
-
+    FusedLocationProviderClient locclient;
+    SharedPreferences locations;
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
         homeViewModel =
@@ -88,7 +130,22 @@ public class HomeFragment extends Fragment {
 
             }
         });
+
+        locations = this.getActivity().getSharedPreferences("pref", Context.MODE_PRIVATE);
+        //String local = locations.getString("local")
+
+
         new fetch().execute();
         return root;
+    }
+
+    void getLocations(){
+       locclient =  LocationServices.getFusedLocationProviderClient(this.getActivity());
+    }
+    private void getLocation(){
+       // if(checkPermissions())
+
+
+
     }
 }
