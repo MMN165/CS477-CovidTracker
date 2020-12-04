@@ -13,13 +13,53 @@
         android:layout_width="match_parent"
         android:layout_height="150dp"
         card_view:cardCornerRadius="20dp">
-
-        <TextView
-            android:id="@+id/info_text"
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:text="Local Area"
-            android:textSize="30dp"/>
+            android:layout_height="match_parent">
+            <TextView
+                android:id="@+id/info_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Local Area"
+                android:textSize="30dp"
+                card_view:layout_constraintTop_toTopOf="parent"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Current Cases"
+                android:id="@+id/caseText"
+                card_view:layout_constraintTop_toBottomOf="@+id/info_text"
+                card_view:layout_constraintStart_toStartOf="parent"/>
+
+            <TextView
+                android:textSize="50dp"
+                android:text="000"
+                android:id="@+id/currentCases"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                card_view:layout_constraintTop_toBottomOf="@+id/caseText"
+                card_view:layout_constraintStart_toStartOf="parent"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Current Deaths"
+                android:id="@+id/deathText"
+                card_view:layout_constraintTop_toBottomOf="@+id/info_text"
+                card_view:layout_constraintStart_toEndOf="@+id/caseText"
+                android:layout_marginStart="50dp"/>
+
+            <TextView
+                android:textSize="50dp"
+                android:text="000"
+                android:id="@+id/currentDeaths"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                card_view:layout_constraintTop_toBottomOf="@+id/deathText"
+                card_view:layout_constraintStart_toEndOf="@+id/caseText"
+                android:layout_marginStart="50dp"/>
+        </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.cardview.widget.CardView>
 
     <ListView

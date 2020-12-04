@@ -38,10 +38,13 @@ public class HomeFragment extends Fragment {
     private HomeViewModel homeViewModel;
 
     private class fetch extends AsyncTask {
+
         @Override
         protected Object doInBackground(Object[] objects) {
+            String county = (String) objects[0];
+            String state = (String) objects[1];
             try {
-                Task<Location> local = locclient.getLastLocation();
+               /* Task<Location> local = locclient.getLastLocation();
                 local.addOnCompleteListener((Executor) this, new OnCompleteListener<Location>() {
                     @Override
                     public void onComplete(@NonNull Task<Location> task) {
@@ -67,7 +70,9 @@ public class HomeFragment extends Fragment {
 
                         }
                     }
-                });
+                });*/
+
+
             }catch(SecurityException e){
                 e.printStackTrace();
                 Toast.makeText(getContext(), "No Permissions!", Toast.LENGTH_SHORT).show();
@@ -83,29 +88,33 @@ public class HomeFragment extends Fragment {
             try {
                 OkHttpClient client = new OkHttpClient();
                 Request request = new Request.Builder()
-                        .url("https://covidti.com/api/public/us/timeseries/Virginia/Fairfax")
+                        .url("https://covidti.com/api/public/us/timeseries/" + state + "/" + county)
                         .method("GET", null)
                         .addHeader("Cookie", "__cfduid=d643853aa641016922decbeeaf960a3121604966690; Cookie_2=value")
                         .build();
                 Response response = client.newCall(request).execute();
                 String test = response.body().string();
                 ArrayList<int[]> timestamps = jsonParser.filterTimeSeriesResults(test);
-                for(int[] time : timestamps){
+               /* for(int[] time : timestamps){
 
-                }
-
+                }*/
+                return timestamps.get(timestamps.size() - 1)[0] - timestamps.get(timestamps.size() - 2)[0];
             }catch (Exception e){
                 e.printStackTrace();
             }
-
-
-            return null;
+            return 0;
         }
+        @Override
+        protected void onPostExecute(Object result ){
+            currentCases.setText("" + (int) result);
+        }
+
     }
 
     ListView favorites;
     FusedLocationProviderClient locclient;
     SharedPreferences locations;
+    TextView currentCases, lt;
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
         homeViewModel =
@@ -134,8 +143,14 @@ public class HomeFragment extends Fragment {
         locations = this.getActivity().getSharedPreferences("pref", Context.MODE_PRIVATE);
         //String local = locations.getString("local")
 
+        currentCases = root.findViewById(R.id.currentCases);
 
-        new fetch().execute();
+        String[] locationParams = {"Arlington", "Virginia"};
+        lt = root.findViewById(R.id.info_text);
+
+        lt.setText("" + "Arlington" + ", " + "Virginia");
+
+        new fetch().execute(locationParams);
         return root;
     }
 
