@@ -14,7 +14,7 @@ import androidx.lifecycle.ViewModelProviders;
 
 import com.example.cs477_covidtracker.R;
 
-public class DashboardFragment extends Fragment {
+public class SearchFragment extends Fragment {
 
     private DashboardViewModel dashboardViewModel;
 

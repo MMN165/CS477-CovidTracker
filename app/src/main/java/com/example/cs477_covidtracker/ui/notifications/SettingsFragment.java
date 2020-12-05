@@ -19,7 +19,7 @@ import androidx.lifecycle.ViewModelProviders;
 import com.example.cs477_covidtracker.R;
 import com.example.cs477_covidtracker.resetAlertDialog;
 
-public class NotificationsFragment extends Fragment {
+public class SettingsFragment extends Fragment {
 
     private NotificationsViewModel notificationsViewModel;
 
