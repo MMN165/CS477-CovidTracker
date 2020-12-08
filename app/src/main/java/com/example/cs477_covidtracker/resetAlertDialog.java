@@ -30,7 +30,7 @@ public class resetAlertDialog extends DialogFragment {
                 .setPositiveButton("Reset", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                         sharedPref.edit().clear().commit();
+                        sharedPref.edit().clear().commit();
                         Toast.makeText(getContext(), "Settings reset", Toast.LENGTH_SHORT).show();
                     }
                 })

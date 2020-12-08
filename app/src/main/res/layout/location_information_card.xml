@@ -19,6 +19,14 @@
             app:layout_constraintTop_toTopOf="parent"/>
 
         <TextView
+            android:visibility="invisible"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text = "High Risk Area"
+            android:textSize="15dp"
+            app:layout_constraintStart_toEndOf="@+id/location_text2"
+            app:layout_constraintTop_toTopOf="parent"/>
+        <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Current Cases"
@@ -27,7 +35,7 @@
             app:layout_constraintStart_toStartOf="parent"/>
 
         <TextView
-            android:textSize="50dp"
+            android:textSize="40dp"
             android:text="000"
             android:id="@+id/currentCases2"
             android:layout_width="wrap_content"
@@ -45,7 +53,7 @@
             app:layout_constraintEnd_toEndOf="parent" />
 
         <TextView
-            android:textSize="50dp"
+            android:textSize="40dp"
             android:text="000"
             android:id="@+id/currentDeaths2"
             android:layout_width="wrap_content"

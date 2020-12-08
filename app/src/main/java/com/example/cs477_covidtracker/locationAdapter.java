@@ -65,7 +65,9 @@ public class locationAdapter extends RecyclerView.Adapter<locationAdapter.Exampl
     public void onBindViewHolder(@NonNull ExampleViewHolder holder, int position) {
             cardLocation currentItem = mLocationInfo.get(position);
 
-            holder.location.setText(currentItem.getLocation());
+            //holder.location.setText(currentItem.getLocation());
+
+            holder.location.setText("" + currentItem.getCounty() + ", " + currentItem.getState());
             holder.mDeaths.setText("" + currentItem.getCurrentDeath());
             holder.mCases.setText("" + currentItem.getCurrentCase());
     }

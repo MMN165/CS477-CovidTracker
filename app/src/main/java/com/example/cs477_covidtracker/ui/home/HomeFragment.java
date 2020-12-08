@@ -1,6 +1,7 @@
 package com.example.cs477_covidtracker.ui.home;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.location.Location;
 import android.os.AsyncTask;
@@ -103,22 +104,25 @@ public class HomeFragment extends Fragment {
                 Response response = client.newCall(request).execute();
                 String test = response.body().string();
                 ArrayList<int[]> timestamps = jsonParser.filterTimeSeriesResults(test);
-               /* for(int[] time : timestamps){
+                int local = timestamps.get(timestamps.size() - 1)[0] - timestamps.get(timestamps.size() - 2)[0];
 
-                }*/
-
-               // for(cardLocation loc: locationList){
-                 //   String query = loc.getLocation();
+                for(cardLocation loc: locationList){
+                    county = loc.getCounty();
+                    state = loc.getState();
                     request = new Request.Builder()
-                            .url("https://covidti.com/api/public/us/timeseries/" + "Virginia" + "/" + "Fairfax")
+                            .url("https://covidti.com/api/public/us/timeseries/" + state + "/" + county)
                             .method("GET", null)
                             .addHeader("Cookie", "__cfduid=d643853aa641016922decbeeaf960a3121604966690; Cookie_2=value")
                             .build();
                     response = client.newCall(request).execute();
                     test = response.body().string();
                     timestamps = jsonParser.filterTimeSeriesResults(test);
-               // }
-                return timestamps.get(timestamps.size() - 1)[0] - timestamps.get(timestamps.size() - 2)[0];
+
+                    loc.setCurrentCases(timestamps.get(timestamps.size() - 1)[0]);
+                    loc.setCurrentDeath(timestamps.get(timestamps.size()-1)[1]);
+                    loc.history = timestamps;
+                }
+                return local;
             }catch (Exception e){
                 e.printStackTrace();
             }
@@ -130,6 +134,8 @@ public class HomeFragment extends Fragment {
         @Override
         protected void onPostExecute(Object result ){
             currentCases.setText("" + (int) result);
+            mAdapter.notifyDataSetChanged();
+
         }
 
     }
@@ -137,6 +143,8 @@ public class HomeFragment extends Fragment {
     FusedLocationProviderClient locclient;
     SharedPreferences pref;
     TextView currentCases, lt;
+    public static final String CASESPASS = "com.example.cs477_covidtracker.CASESEPASS";
+    public static final String LOCATIONCUR = "com.example.cs477_covidtracker.LOCATIONCUR";
     private RecyclerView mRecyclerView;
     private locationAdapter mAdapter;
     private LinearLayoutManager mLayoutManager;
@@ -180,8 +188,9 @@ public class HomeFragment extends Fragment {
         lt.setText("" + "Arlington" + ", " + "Virginia");
 
         locationList = new ArrayList<>();
-        //locationList.add(new cardLocation(100, 200, "LA, California"));
-        //locationList.add(new cardLocation(205, 632, "New York, NY"));
+        locationList.add(new cardLocation(0, 0, "Fairfax", "Virginia"));
+        locationList.add(new cardLocation(0, 0, "King", "Washington"));
+       // locationList.add(new cardLocation(0, 0, "Prince William", "Virginia"));
         mRecyclerView = root.findViewById(R.id.favorites_list);
         //mRecyclerView.setHasFixedSize(true);
         mLayoutManager = new LinearLayoutManager(this.getContext());
@@ -195,8 +204,13 @@ public class HomeFragment extends Fragment {
         mAdapter.setOnItemClickListener(new locationAdapter.onItemClickListener() {
             @Override
             public void onItemClick(int position) {
-                locationList.get(position).changeLocation("Clicked");
-                mAdapter.notifyItemChanged(position);
+                Intent intent = new Intent(getActivity(), LocationDetailsActivity.class);
+                intent.putExtra(CASESPASS, locationList.get(position).history);
+                intent.putExtra(LOCATIONCUR, locationList.get(position).getLocation());
+                //intent.putExtra("name", locationList.get(position).getCounty());
+                startActivity(intent);
+                //locationList.get(position).changeLocation("Clicked");
+                //mAdapter.notifyItemChanged(position);
             }
         });
 
@@ -204,13 +218,14 @@ public class HomeFragment extends Fragment {
         return root;
     }
 
+    public void refresh(){
+        //new fetch().execute(locationParams);
+    }
     void getLocations(){
        locclient =  LocationServices.getFusedLocationProviderClient(this.getActivity());
     }
-    private void getLocation(){
-       // if(checkPermissions())
-
-
-
+    @Override
+    public void onResume(){
+        super.onResume();
     }
 }
