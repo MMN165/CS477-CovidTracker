@@ -7,7 +7,7 @@
     tools:context=".ui.notifications.SettingsFragment">
 
 
-
+    <!--android:layout test_gravity="center" -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
