@@ -11,7 +11,7 @@ import android.widget.Toast;
 
 import androidx.fragment.app.DialogFragment;
 
-//For unsaved changes in add/edit workouts.
+//For unsaved changes in add/edit workouts. Recommiting
 public class resetAlertDialog extends DialogFragment {
     public static SharedPreferences sharedPref;
     public static resetAlertDialog newInstance(String title){

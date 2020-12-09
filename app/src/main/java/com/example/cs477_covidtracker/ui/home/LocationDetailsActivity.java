@@ -22,6 +22,7 @@ import java.util.List;
 
 public class LocationDetailsActivity extends AppCompatActivity {
 
+    //Recommitting
     TextView Cases, Deaths, deltaCases, deltaDeaths, loc;
     @Override
     protected void onCreate(Bundle savedInstanceState) {

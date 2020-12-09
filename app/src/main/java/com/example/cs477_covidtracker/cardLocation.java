@@ -1,7 +1,7 @@
 package com.example.cs477_covidtracker;
 
 import java.util.ArrayList;
-
+//Recommiting
 public class cardLocation {
     private int currentcase, currentDeath;
     private String mLocation, mCounty, mState;

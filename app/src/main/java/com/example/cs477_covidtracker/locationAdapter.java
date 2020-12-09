@@ -9,7 +9,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
-
+//Recommiting
 public class locationAdapter extends RecyclerView.Adapter<locationAdapter.ExampleViewHolder> {
     private ArrayList<cardLocation> mLocationInfo;
     private onItemClickListener clickListener;
