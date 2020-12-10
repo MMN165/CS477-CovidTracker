@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -106,7 +107,8 @@ public class HomeFragment extends Fragment {
                 String test = response.body().string();
                 ArrayList<int[]> timestamps = jsonParser.filterTimeSeriesResults(test);
                 int local = timestamps.get(timestamps.size() - 1)[0] - timestamps.get(timestamps.size() - 2)[0];
-
+                int deaths = timestamps.get(timestamps.size() - 1)[1] - timestamps.get(timestamps.size() - 2)[1];
+                localHistory = timestamps;
                 for(cardLocation loc: locationList){
                     county = loc.getCounty();
                     state = loc.getState();
@@ -123,7 +125,7 @@ public class HomeFragment extends Fragment {
                     loc.setCurrentDeath(timestamps.get(timestamps.size()-1)[1]);
                     loc.history = timestamps;
                 }
-                return local;
+                return new Pair(local, deaths);
             }catch (Exception e){
                 e.printStackTrace();
             }
@@ -134,16 +136,20 @@ public class HomeFragment extends Fragment {
         }
         @Override
         protected void onPostExecute(Object result ){
-            currentCases.setText("" + (int) result);
+            Pair<Integer, Integer> test = (Pair) result;
+            currentCases.setText("" + test.first);
+            currentDeaths.setText("" + test.second);
             mAdapter.notifyDataSetChanged();
 
         }
 
     }
 
+    ArrayList<int[]> localHistory;
     FusedLocationProviderClient locclient;
     SharedPreferences pref;
-    TextView currentCases, lt;
+    TextView currentCases, currentDeaths, lt;
+    CardView localCard;
     public static final String CASESPASS = "com.example.cs477_covidtracker.CASESEPASS";
     public static final String LOCATIONCUR = "com.example.cs477_covidtracker.LOCATIONCUR";
     private RecyclerView mRecyclerView;
@@ -156,24 +162,6 @@ public class HomeFragment extends Fragment {
                 ViewModelProviders.of(this).get(HomeViewModel.class);
         View root = inflater.inflate(R.layout.fragment_home, container, false);
         CardView textView = root.findViewById(R.id.local_dest);
-      /*  homeViewModel.getText().observe(getViewLifecycleOwner(), new Observer<String>() {
-            @Override
-            public void onChanged(@Nullable String s) {
-                textView.setText(s);
-            }
-        });
-*/
-
-       /* favorites = root.findViewById(R.id.favorites_list);
-        ArrayAdapter lister = new ArrayAdapter<String>(root.getContext(), R.layout.card_info_layout);
-        favorites.setAdapter(lister);
-
-        favorites.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-
-            }
-        });*/
 
         pref = this.getActivity().getSharedPreferences("pref", Context.MODE_PRIVATE);
 
@@ -182,8 +170,9 @@ public class HomeFragment extends Fragment {
         //String local = locations.getString("local")
 
         currentCases = root.findViewById(R.id.currentCases);
-
-        String[] locationParams = {"Arlington", "Virginia"};
+        currentDeaths = root.findViewById(R.id.currentDeaths);
+        localCard = root.findViewById(R.id.local_dest);
+        final String[] locationParams = {"Arlington", "Virginia"};
         lt = root.findViewById(R.id.info_text);
 
         lt.setText("" + "Arlington" + ", " + "Virginia");
@@ -212,6 +201,18 @@ public class HomeFragment extends Fragment {
                 startActivity(intent);
                 //locationList.get(position).changeLocation("Clicked");
                 //mAdapter.notifyItemChanged(position);
+            }
+        });
+
+        //Hurting
+        localCard.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(getActivity(), LocationDetailsActivity.class);
+                intent.putExtra(CASESPASS, localHistory);
+                intent.putExtra(LOCATIONCUR, "" + locationParams[0] + ", " + locationParams[1] );
+                //intent.putExtra("name", locationList.get(position).getCounty());
+                startActivity(intent);
             }
         });
 
