@@ -204,6 +204,7 @@ public class HomeFragment extends Fragment {
             }
         });
 
+        //Hurting
         localCard.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
