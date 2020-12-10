@@ -2,6 +2,7 @@ package com.example.cs477_covidtracker.ui.home;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.cs477_covidtracker.MainActivity2;
 import com.example.cs477_covidtracker.R;
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.data.Entry;
@@ -10,20 +11,28 @@ import com.github.mikephil.charting.data.LineDataSet;
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
 import com.github.mikephil.charting.utils.Utils;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.DashPathEffect;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class LocationDetailsActivity extends AppCompatActivity {
 
     //Recommitting
     TextView Cases, Deaths, deltaCases, deltaDeaths, loc;
+    String locStr;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -31,17 +40,21 @@ public class LocationDetailsActivity extends AppCompatActivity {
         Intent intent = getIntent();
 
         ArrayList<int[]> history = (ArrayList<int[]>) intent.getSerializableExtra(HomeFragment.CASESPASS);
-        String test = intent.getStringExtra(HomeFragment.LOCATIONCUR);
-
+        locStr = intent.getStringExtra(HomeFragment.LOCATIONCUR);
         Cases = findViewById(R.id.cCasesInfo);
         Deaths = findViewById(R.id.cDeathsInfo);
         deltaCases = findViewById(R.id.cCasesDelta);
         deltaDeaths = findViewById(R.id.cDeathsDelta);
         loc = findViewById(R.id.location_name);
-
-        loc.setText(test);
-        Cases.setText("" + (history.get(history.size() - 1)[0] - history.get(history.size() - 2)[0]));
-        Deaths.setText("" + (history.get(history.size() - 1)[1] - history.get(history.size() - 2)[1]));
+        Button remove = findViewById(R.id.remove);
+        if(intent.getBooleanExtra(HomeFragment.ISLOCAL, false)){
+            remove.setEnabled(false);
+        }
+        int dCasesTotal = history.get(history.size() - 1)[0];
+        int dDeathsTotal = history.get(history.size() - 1)[1];
+        loc.setText(locStr);
+        Cases.setText("" + (history.get(history.size() - 1)[0] - history.get(history.size() - 2)[0]) + "(" + dCasesTotal + ")");
+        Deaths.setText("" + (history.get(history.size() - 1)[1] - history.get(history.size() - 2)[1])+ "(" + dDeathsTotal + ")");
 
         int dCases = (history.get(history.size() - 1)[0] - history.get(history.size() - 2)[0]) - (history.get(history.size() - 2)[0] - history.get(history.size() - 3)[0]);
         int dDeaths = (history.get(history.size() - 1)[1] - history.get(history.size() - 2)[1]) - (history.get(history.size() - 2)[1] - history.get(history.size() - 3)[1]);
@@ -120,6 +133,23 @@ public class LocationDetailsActivity extends AppCompatActivity {
             LineData data = new LineData(dataSets);
             mChart.setData(data);
         }
+    }
+
+    public void removeFromFavorites(View v){
+        SharedPreferences pref =  getApplicationContext().getSharedPreferences("User", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = pref.edit();
+        Set<String> set = pref.getStringSet("favorites", null);
+        if(set == null){
+            set = new HashSet<>();
+        }
+        set.remove(locStr);
+        editor.clear();
+        editor.putStringSet("favorites", set);
+        editor.commit();
+        Toast.makeText(getApplicationContext(), "Location Removed", Toast.LENGTH_SHORT).show();
+        Intent intent = new Intent(this, MainActivity2.class);
+        startActivity(intent);
+
     }
 
 

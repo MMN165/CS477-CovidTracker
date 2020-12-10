@@ -70,15 +70,19 @@ public class jsonParser {
             JSONArray data = result.getJSONObject("response").getJSONArray("countyArray");
 
             ArrayList<String> counties = new ArrayList<>();
+            String countyUnfiltered;
             for(int x = 0; x < data.length(); x++){
                 try{
-                    String countyUnfiltered = data.getJSONObject(x).getString("County");
+                    countyUnfiltered = data.getJSONObject(x).getString("County");
                     countyUnfiltered = countyUnfiltered.replaceAll("\\d+(?:[.,]\\d+)*\\s*", "").replaceAll ("\"[\\\\p{P}&&[^\\u0027]]\"", "")
                     .replaceAll("[\\[\\](){}]","").replaceAll("\\*", "");
-                    counties.add(countyUnfiltered);
+                    if(!counties.contains(countyUnfiltered)) {
+                        counties.add(countyUnfiltered);
+                    }
                 }catch (Exception e){
                     if(state.equals("Alaska")) {
-                        counties.add(data.getJSONObject(x).getString("Borough"));
+                        countyUnfiltered = data.getJSONObject(x).getString("Borough").replaceAll("\\s*\\bBorough\\b\\s*", "");
+                        counties.add(countyUnfiltered);
                     }
                     else if (state.equals("Louisiana")){
                         counties.add(data.getJSONObject(x).getString("Parish"));

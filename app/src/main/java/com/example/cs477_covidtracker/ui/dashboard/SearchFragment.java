@@ -146,6 +146,7 @@ public class SearchFragment extends Fragment {
         protected void onPostExecute(Object result) {
 
             List<String> x = map.get("Alabama");
+            selectedState = "Alabama";
             listAdapter = new ArrayAdapter<String>(getActivity().getApplicationContext(), android.R.layout.simple_list_item_1, x);
             listView.setAdapter(listAdapter);
             listAdapter.notifyDataSetChanged();

@@ -6,6 +6,11 @@
     android:layout_height="match_parent"
     tools:context=".ui.dashboard.SearchFragment">
 
+    <TextView
+        android:text="Please wait for the API to fetch all of the available counties get information on."
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent"/>
     <Spinner
         android:id="@+id/stateSpinner"
         android:layout_width="match_parent"
@@ -17,10 +22,11 @@
     <ListView
         android:id="@+id/listView"
         android:layout_width="406dp"
-        android:layout_height="450dp"
-        android:layout_marginTop="64dp"
+        android:layout_height="500dp"
+        android:layout_marginTop="10dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
+
         app:layout_constraintTop_toBottomOf="@+id/stateSpinner" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

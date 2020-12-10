@@ -2,7 +2,9 @@ package com.example.cs477_covidtracker;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.DashPathEffect;
 import android.os.AsyncTask;
@@ -10,6 +12,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.cs477_covidtracker.ui.dashboard.SearchFragment;
 import com.example.cs477_covidtracker.ui.home.HomeFragment;
@@ -25,11 +28,14 @@ import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 public class LocationDetailsSearchActivity extends AppCompatActivity {
 
     TextView Cases, Deaths, deltaCases, deltaDeaths, loc;
+    String locStr;
     ArrayList<int[]> history;
     LineChart mChart;
     String county, state;
@@ -49,16 +55,32 @@ public class LocationDetailsSearchActivity extends AppCompatActivity {
         deltaCases = findViewById(R.id.cCasesDelta2);
         deltaDeaths = findViewById(R.id.cDeathsDelta2);
         loc = findViewById(R.id.location_name2);
-        loc.setText("" + county + ", " + state);
+        locStr = "" + county + ", " + state;
+        loc.setText(locStr);
 
         save = findViewById(R.id.save);
 
+        mChart = findViewById(R.id.caseDetails2);
+
+        mChart.setTouchEnabled(false);
+        mChart.setPinchZoom(false);
 
         new fetch().execute();
     }
 
     public void save(View v){
+        SharedPreferences pref = getSharedPreferences("User", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = pref.edit();
+        Set<String> set = pref.getStringSet("favorites", null);
+        if(set == null){
+            set = new HashSet<>();
+        }
+        set.add(locStr);
+        editor.clear();
+        editor.putStringSet("favorites", set);
+        editor.commit();
 
+        Toast.makeText(this, "Saved", Toast.LENGTH_SHORT).show();
     }
 
     private class fetch extends AsyncTask {
@@ -85,7 +107,7 @@ public class LocationDetailsSearchActivity extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(Object result){
-            if(history.size() != 0) {
+            if(history != null && history.size() != 0) {
                 setupChart();
             }
         }
@@ -94,6 +116,11 @@ public class LocationDetailsSearchActivity extends AppCompatActivity {
     private void setupChart(){
         Cases.setText("" + (history.get(history.size() - 1)[0] - history.get(history.size() - 2)[0]));
         Deaths.setText("" + (history.get(history.size() - 1)[1] - history.get(history.size() - 2)[1]));
+
+        int dCasesTotal = history.get(history.size() - 1)[0];
+        int dDeathsTotal = history.get(history.size() - 1)[1];
+        Cases.setText("" + (history.get(history.size() - 1)[0] - history.get(history.size() - 2)[0]) + "(" +  dCasesTotal + ")");
+        Deaths.setText("" + (history.get(history.size() - 1)[1] - history.get(history.size() - 2)[1])+ "(" +  dDeathsTotal + ")");
 
         int dCases = (history.get(history.size() - 1)[0] - history.get(history.size() - 2)[0]) - (history.get(history.size() - 2)[0] - history.get(history.size() - 3)[0]);
         int dDeaths = (history.get(history.size() - 1)[1] - history.get(history.size() - 2)[1]) - (history.get(history.size() - 2)[1] - history.get(history.size() - 3)[1]);
@@ -117,10 +144,6 @@ public class LocationDetailsSearchActivity extends AppCompatActivity {
             deltaDeaths.setTextColor(Color.RED);
         }
 
-        mChart = findViewById(R.id.caseDetails2);
-
-        mChart.setTouchEnabled(false);
-        mChart.setPinchZoom(false);
 
         ArrayList<Entry> values  = new ArrayList<>();
         ArrayList<Entry> deaths = new ArrayList<>();
@@ -172,6 +195,8 @@ public class LocationDetailsSearchActivity extends AppCompatActivity {
             LineData data = new LineData(dataSets);
             mChart.setData(data);
         }
+        mChart.invalidate();
+
     }
 
 }

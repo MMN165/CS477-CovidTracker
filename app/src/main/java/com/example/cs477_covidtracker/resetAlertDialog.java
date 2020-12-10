@@ -11,6 +11,9 @@ import android.widget.Toast;
 
 import androidx.fragment.app.DialogFragment;
 
+import java.util.HashSet;
+import java.util.Set;
+
 //For unsaved changes in add/edit workouts. Recommiting
 public class resetAlertDialog extends DialogFragment {
     public static SharedPreferences sharedPref;
@@ -25,13 +28,19 @@ public class resetAlertDialog extends DialogFragment {
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState){
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        sharedPref = this.getActivity().getSharedPreferences("pref", Context.MODE_PRIVATE);
+        //sharedPref = this.getActivity().getSharedPreferences("pref", Context.MODE_PRIVATE);
         builder.setMessage("You are resetting all settings to default and erasing all preferences. Do you want to continue?")
                 .setPositiveButton("Reset", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        sharedPref.edit().clear().commit();
-                        Toast.makeText(getContext(), "Settings reset", Toast.LENGTH_SHORT).show();
+                        SharedPreferences pref =  getActivity().getApplicationContext().getSharedPreferences("User", Context.MODE_PRIVATE);
+                        SharedPreferences.Editor editor = pref.edit();
+                        Set<String> set = new HashSet<String>();
+                        editor.clear();
+                        editor.putStringSet("favorites", set);
+                        editor.commit();
+                        //sharedPref.edit().clear().commit();
+                        Toast.makeText(getContext(), "Favorites reset", Toast.LENGTH_SHORT).show();
                     }
                 })
                 .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {

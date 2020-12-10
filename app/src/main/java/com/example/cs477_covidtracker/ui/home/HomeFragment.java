@@ -52,8 +52,10 @@ import com.squareup.okhttp.Response;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 
@@ -98,8 +100,8 @@ public class HomeFragment extends Fragment {
 
         @Override
         protected Object doInBackground(Object[] objects) {
-            // String county = (String) objects[0];
-            // String state = (String) objects[1];
+            String county = (String) objects[0];
+             String state = (String) objects[1];
             try {
 
                /* Task<Location> local = locclient.getLastLocation();
@@ -152,8 +154,8 @@ public class HomeFragment extends Fragment {
                 Response response = client.newCall(request).execute();
                 String test = response.body().string();
                 ArrayList<int[]> timestamps = jsonParser.filterTimeSeriesResults(test);
-                int local = timestamps.get(timestamps.size() - 1)[0] - timestamps.get(timestamps.size() - 2)[0];
-                int deaths = timestamps.get(timestamps.size() - 1)[1] - timestamps.get(timestamps.size() - 2)[1];
+                int local = timestamps.get(timestamps.size() - 1)[0];
+                int deaths = timestamps.get(timestamps.size() - 1)[1];
                 localHistory = timestamps;
                 for (cardLocation loc : locationList) {
                     county = loc.getCounty();
@@ -198,6 +200,7 @@ public class HomeFragment extends Fragment {
     CardView localCard;
     public static final String CASESPASS = "com.example.cs477_covidtracker.CASESEPASS";
     public static final String LOCATIONCUR = "com.example.cs477_covidtracker.LOCATIONCUR";
+    public static final String ISLOCAL = "com.example.cs477_covidtracker.ISLOCAL";
     private RecyclerView mRecyclerView;
     private locationAdapter mAdapter;
     private LinearLayoutManager mLayoutManager;
@@ -216,8 +219,8 @@ public class HomeFragment extends Fragment {
 
         CardView textView = root.findViewById(R.id.local_dest);
 
-        pref = this.getActivity().getSharedPreferences("pref", Context.MODE_PRIVATE);
 
+        //ArrayList<String> testStr =
         //String local = locations.getString("local")
 
         currentCases = root.findViewById(R.id.currentCases);
@@ -238,11 +241,25 @@ public class HomeFragment extends Fragment {
         // lt.setText("" + "Arlington" + ", " + "Virginia");
         lt.setText("" + county + ", " + state);
 
+
         locationList = new ArrayList<>();
-        locationList.add(new cardLocation(0, 0, "Fairfax", "Virginia"));
-        locationList.add(new cardLocation(0, 0, "King", "Washington"));
-        // locationList.add(new cardLocation(0, 0, "Prince William", "Virginia"));
+        //locationList.add(new cardLocation(0, 0, "Fairfax", "Virginia"));
+        //locationList.add(new cardLocation(0, 0, "King", "Washington"));
         mRecyclerView = root.findViewById(R.id.favorites_list);
+        pref = this.getActivity().getSharedPreferences("User", Context.MODE_PRIVATE);
+        Set<String> test = pref.getStringSet("favorites", null);
+        if(test != null) {
+            for (String x : test) {
+                String[] spliter = x.split(", ", 2);
+                locationList.add(new cardLocation(0, 0, spliter[0], spliter[1]));
+            }
+        }
+        else{
+            mRecyclerView.setVisibility(View.INVISIBLE);
+            Toast.makeText(getActivity(), "The favorites list is currently empty. Please go to search to add to your favorites.", Toast.LENGTH_LONG).show();
+        }
+        // locationList.add(new cardLocation(0, 0, "Prince William", "Virginia"));
+
         //mRecyclerView.setHasFixedSize(true);
         mLayoutManager = new LinearLayoutManager(this.getContext());
         mAdapter = new locationAdapter(locationList);
@@ -257,6 +274,7 @@ public class HomeFragment extends Fragment {
             public void onItemClick(int position) {
                 Intent intent = new Intent(getActivity(), LocationDetailsActivity.class);
                 intent.putExtra(CASESPASS, locationList.get(position).history);
+                intent.putExtra(ISLOCAL, false);
                 intent.putExtra(LOCATIONCUR, locationList.get(position).getLocation());
                 //intent.putExtra("name", locationList.get(position).getCounty());
                 startActivity(intent);
@@ -271,6 +289,7 @@ public class HomeFragment extends Fragment {
             public void onClick(View view) {
                 Intent intent = new Intent(getActivity(), LocationDetailsActivity.class);
                 intent.putExtra(CASESPASS, localHistory);
+                intent.putExtra(ISLOCAL, true);
                 intent.putExtra(LOCATIONCUR, "" + locationParams[0] + ", " + locationParams[1]);
                 //intent.putExtra("name", locationList.get(position).getCounty());
                 startActivity(intent);

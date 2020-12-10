@@ -7,16 +7,21 @@
     tools:context=".ui.home.HomeFragment"
     android:orientation="vertical">
     <!--android:layout test_gravity="center" -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Please wait, the API will get the statistics shortly."/>
     <androidx.cardview.widget.CardView
         xmlns:card_view="http://schemas.android.com/apk/res-auto"
         android:id="@+id/local_dest"
         android:layout_width="match_parent"
         android:layout_height="150dp"
-        card_view:cardCornerRadius="20dp">
+        card_view:cardBackgroundColor="@color/colorLocal">
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent">
             <TextView
+                android:textColor="@color/colorLocalText"
                 android:id="@+id/info_text"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -25,6 +30,7 @@
                 card_view:layout_constraintTop_toTopOf="parent"/>
 
             <TextView
+                android:textColor="@color/colorLocalText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Current Cases"
@@ -33,6 +39,7 @@
                 card_view:layout_constraintStart_toStartOf="parent"/>
 
             <TextView
+                android:textColor="@color/colorLocalText"
                 android:textSize="50dp"
                 android:text="000"
                 android:id="@+id/currentCases"
@@ -42,15 +49,17 @@
                 card_view:layout_constraintStart_toStartOf="parent"/>
 
             <TextView
+                android:textColor="@color/colorLocalText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Current Deaths"
                 android:id="@+id/deathText"
                 card_view:layout_constraintTop_toBottomOf="@+id/info_text"
                 card_view:layout_constraintStart_toEndOf="@+id/caseText"
-                android:layout_marginStart="50dp"/>
+                android:layout_marginStart="100dp"/>
 
             <TextView
+                android:textColor="@color/colorLocalText"
                 android:textSize="50dp"
                 android:text="000"
                 android:id="@+id/currentDeaths"
@@ -58,14 +67,24 @@
                 android:layout_height="wrap_content"
                 card_view:layout_constraintTop_toBottomOf="@+id/deathText"
                 card_view:layout_constraintStart_toEndOf="@+id/caseText"
-                android:layout_marginStart="50dp"/>
+                android:layout_marginStart="100dp"/>
+
+            <TextView
+                android:textColor="@color/colorLocalText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Local County"
+                android:textSize="20dp"
+                card_view:layout_constraintBottom_toBottomOf="parent"
+                card_view:layout_constraintEnd_toEndOf="parent"/>
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.cardview.widget.CardView>
-
     <androidx.recyclerview.widget.RecyclerView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/favorites_list"
         android:scrollbars="vertical"
+        android:layout_marginBottom="?attr/actionBarSize"
         />
+
 </LinearLayout>
