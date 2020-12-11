@@ -39,28 +39,13 @@
                 app:layout_constraintStart_toEndOf="@+id/workout"
                 />
         </LinearLayout>
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="30dp">
 
-            <ImageButton
-                android:id="@+id/setLocation"
-                android:layout_width="0dp"
-                android:layout_height="150dp"
-                android:layout_weight="2"
-                android:src="@drawable/ic_baseline_star_24"
-                />
-            <ImageButton
-                android:id="@+id/lol"
-                android:layout_weight="2"
-                android:layout_width="0dp"
-                android:layout_height="150dp"
-                android:layout_marginLeft="20dp"
-                app:layout_constraintTop_toTopOf="@+id/workout"
-                app:layout_constraintStart_toEndOf="@+id/workout"
-                />
-        </LinearLayout>
     </LinearLayout>
-
+    <TextView
+        android:textSize="15dp"
+        android:text="Covidti is a free Open-Source API Courtesy of restless-rocket-6084, 2020. Charts from MPChart."
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginBottom="?attr/actionBarSize"/>
 </androidx.constraintlayout.widget.ConstraintLayout>

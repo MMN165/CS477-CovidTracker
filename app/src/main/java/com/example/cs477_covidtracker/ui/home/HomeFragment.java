@@ -100,48 +100,8 @@ public class HomeFragment extends Fragment {
 
         @Override
         protected Object doInBackground(Object[] objects) {
-            String county = (String) objects[0];
-             String state = (String) objects[1];
-            try {
-
-               /* Task<Location> local = locclient.getLastLocation();
-                local.addOnCompleteListener((Executor) this, new OnCompleteListener<Location>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Location> task) {
-                        if(task.isSuccessful()){
-                            Location lastKnownLocation = task.getResult();
-                            try {
-                                OkHttpClient client = new OkHttpClient();
-                                Request request = new Request.Builder()
-                                        .url("https://covidti.com/api/public/us/timeseries/Virginia/Fairfax")
-                                        .method("GET", null)
-                                        .addHeader("Cookie", "__cfduid=d643853aa641016922decbeeaf960a3121604966690; Cookie_2=value")
-                                        .build();
-                                Response response = client.newCall(request).execute();
-                                String test = response.body().string();
-                                ArrayList<int[]> timestamps = jsonParser.filterTimeSeriesResults(test);
-                                for(int[] time : timestamps){
-                                }
-                            }catch (Exception e){
-                                e.printStackTrace();
-                            }
-                        }
-                    }
-                });*/
-
-
-            } catch (SecurityException e) {
-                e.printStackTrace();
-                Toast.makeText(getContext(), "No Permissions!", Toast.LENGTH_SHORT).show();
-            }
-
-
-        /*  Request request = new Request.Builder()
-                    .url("https://covidti.com/api/public/us/timeseries/Virginia/Fairfax")
-                    .method("GET", null)
-                    .addHeader("Cookie", "__cfduid=d643853aa641016922decbeeaf960a3121604966690; Cookie_1=value")
-                    .build();
-            Response response;*/
+           //String county = (String) objects[0];
+           //  String state = (String) objects[1];
             try {
                 OkHttpClient client = new OkHttpClient();
                 client.setConnectTimeout(30, TimeUnit.SECONDS);
@@ -188,6 +148,7 @@ public class HomeFragment extends Fragment {
             currentCases.setText("" + test.first);
             currentDeaths.setText("" + test.second);
             mAdapter.notifyDataSetChanged();
+            api_call_notif.setVisibility(View.GONE);
 
         }
 
@@ -205,7 +166,7 @@ public class HomeFragment extends Fragment {
     private locationAdapter mAdapter;
     private LinearLayoutManager mLayoutManager;
     ArrayList<cardLocation> locationList;
-
+    TextView api_call_notif;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -226,6 +187,7 @@ public class HomeFragment extends Fragment {
         currentCases = root.findViewById(R.id.currentCases);
         currentDeaths = root.findViewById(R.id.currentDeaths);
         localCard = root.findViewById(R.id.local_dest);
+        api_call_notif = root.findViewById(R.id.API_Call_notif);
         // final String[] locationParams = {"Arlington", "Virginia"};
 
         if (county == null || state == null) {
@@ -235,6 +197,11 @@ public class HomeFragment extends Fragment {
             county = "Fairfax";
             state = "Virginia";
         }
+
+        /**
+         * Get the current device's location.
+         */
+       // getDeviceLocation();
         final String[] locationParams = {county, state};
         lt = root.findViewById(R.id.info_text);
 
@@ -358,6 +325,7 @@ public class HomeFragment extends Fragment {
 
         startLocationPermissionRequest();
         userLocation = getActivity().getApplicationContext().getSharedPreferences("User", Context.MODE_PRIVATE); // or 0 for private mode
+        userLocationEditor = userLocation.edit();
         county = userLocation.getString(countyKey, "");
         state = userLocation.getString(stateKey, "");
 
@@ -416,7 +384,7 @@ public class HomeFragment extends Fragment {
 
         Log.i("PRINT PERM ", Boolean.toString(checkPermissions()));
         if (checkPermissions()) {
-            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
+            locationManager.requestSingleUpdate(LocationManager.GPS_PROVIDER,  locationListener, null);
             //  minTimeMs (long): minimum time interval between location updates in milliseconds
             // minDistanceM (float): minimum distance between location updates in meters
             Location lastKnownLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
