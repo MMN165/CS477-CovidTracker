@@ -32,6 +32,9 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * This is LocationDetailsActivity with the Async Task to fetch the data first. To see full documentation see LocationDetailsActivity Class.
+ */
 public class LocationDetailsSearchActivity extends AppCompatActivity {
 
     TextView Cases, Deaths, deltaCases, deltaDeaths, loc;
@@ -46,8 +49,6 @@ public class LocationDetailsSearchActivity extends AppCompatActivity {
         setContentView(R.layout.activity_location_details_search);
         Intent intent = getIntent();
 
-        //ArrayList<int[]> history =
-        String test = intent.getStringExtra(SearchFragment.LOCATIONCUR);
         county = intent.getStringExtra(SearchFragment.COUNTY);
         state = intent.getStringExtra(SearchFragment.STATE);
         Cases = findViewById(R.id.cCasesInfo2);
@@ -68,6 +69,9 @@ public class LocationDetailsSearchActivity extends AppCompatActivity {
         new fetch().execute();
     }
 
+    /**
+     * Save the location into the set of favorites. Note that this uses the SharedPreferences to save data.
+     */
     public void save(View v){
         SharedPreferences pref = getSharedPreferences("User", Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = pref.edit();
@@ -83,6 +87,9 @@ public class LocationDetailsSearchActivity extends AppCompatActivity {
         Toast.makeText(this, "Saved", Toast.LENGTH_SHORT).show();
     }
 
+    /**
+     * Async task to pull from the API the selected county and state information, then sets up the rest of the view on onPostExecute.
+     */
     private class fetch extends AsyncTask {
 
         @Override
@@ -113,6 +120,9 @@ public class LocationDetailsSearchActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Seperate method to setup the chart for display.
+     */
     private void setupChart(){
         Cases.setText("" + (history.get(history.size() - 1)[0] - history.get(history.size() - 2)[0]));
         Deaths.setText("" + (history.get(history.size() - 1)[1] - history.get(history.size() - 2)[1]));
@@ -154,8 +164,9 @@ public class LocationDetailsSearchActivity extends AppCompatActivity {
             x++;
         }
 
-        // values.add(new Entry(1, 50));
-        // values.add(new Entry(2, 100));
+        /**
+         * Setting our charts and displaying them
+         */
         LineDataSet set1, set2;
         if (mChart.getData() != null &&
                 mChart.getData().getDataSetCount() > 0) {
@@ -166,8 +177,6 @@ public class LocationDetailsSearchActivity extends AppCompatActivity {
         } else {
             set1 = new LineDataSet(values, "Cases");
             set2 = new LineDataSet(deaths, "Deaths");
-            //set1.enableDashedLine(10f, 5f, 0f);
-            //set1.enableDashedHighlightLine(10f, 5f, 0f);
             set1.setColor(Color.BLUE);
             set2.setColor(Color.RED);
             set1.setCircleColor(Color.BLUE);
@@ -182,13 +191,8 @@ public class LocationDetailsSearchActivity extends AppCompatActivity {
             set1.setFormLineWidth(1f);
             set1.setFormLineDashEffect(new DashPathEffect(new float[]{10f, 5f}, 0f));
             set1.setFormSize(15.f);
-            if (Utils.getSDKInt() >= 18) {
-                //Drawable drawable = ContextCompat.getDrawable(this, R.drawable.fade_blue);
-                //set1.setFillDrawable(drawable);
-            } else {
-                set1.setFillColor(Color.BLUE);
-                set2.setFillColor(Color.RED);
-            }
+            set1.setFillColor(Color.BLUE);
+            set2.setFillColor(Color.RED);
             ArrayList<ILineDataSet> dataSets = new ArrayList<>();
             dataSets.add(set1);
             dataSets.add(set2);

@@ -28,9 +28,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * More in depth information on a specific county.
+ */
 public class LocationDetailsActivity extends AppCompatActivity {
 
-    //Recommitting
     TextView Cases, Deaths, deltaCases, deltaDeaths, loc;
     String locStr;
     @Override
@@ -39,6 +41,9 @@ public class LocationDetailsActivity extends AppCompatActivity {
         setContentView(R.layout.activity_location_details);
         Intent intent = getIntent();
 
+        /**
+         * Getting our views
+         */
         ArrayList<int[]> history = (ArrayList<int[]>) intent.getSerializableExtra(HomeFragment.CASESPASS);
         locStr = intent.getStringExtra(HomeFragment.LOCATIONCUR);
         Cases = findViewById(R.id.cCasesInfo);
@@ -50,6 +55,10 @@ public class LocationDetailsActivity extends AppCompatActivity {
         if(intent.getBooleanExtra(HomeFragment.ISLOCAL, false)){
             remove.setEnabled(false);
         }
+
+        /**
+         * Fetching and getting our cases so we can set.
+         */
         int dCasesTotal = history.get(history.size() - 1)[0];
         int dDeathsTotal = history.get(history.size() - 1)[1];
         loc.setText(locStr);
@@ -77,12 +86,14 @@ public class LocationDetailsActivity extends AppCompatActivity {
             deltaDeaths.setText("+" + dDeaths);
             deltaDeaths.setTextColor(Color.RED);
         }
+
+        /**
+         * Creating the graph with the history of the cases and deaths.
+         */
         LineChart mChart = findViewById(R.id.caseDetails);
 
         mChart.setTouchEnabled(false);
         mChart.setPinchZoom(false);
-
-
         ArrayList<Entry> values  = new ArrayList<>();
         ArrayList<Entry> deaths = new ArrayList<>();
         int x = 1;
@@ -92,8 +103,9 @@ public class LocationDetailsActivity extends AppCompatActivity {
             x++;
         }
 
-       // values.add(new Entry(1, 50));
-       // values.add(new Entry(2, 100));
+        /**
+         * Setting our chart to our history, and visualizing our chart so we can display it.
+         */
         LineDataSet set1, set2;
         if (mChart.getData() != null &&
                 mChart.getData().getDataSetCount() > 0) {
@@ -104,8 +116,6 @@ public class LocationDetailsActivity extends AppCompatActivity {
         } else {
             set1 = new LineDataSet(values, "Cases");
             set2 = new LineDataSet(deaths, "Deaths");
-            //set1.enableDashedLine(10f, 5f, 0f);
-            //set1.enableDashedHighlightLine(10f, 5f, 0f);
             set1.setColor(Color.BLUE);
             set2.setColor(Color.RED);
             set1.setCircleColor(Color.BLUE);
@@ -120,13 +130,8 @@ public class LocationDetailsActivity extends AppCompatActivity {
             set1.setFormLineWidth(1f);
             set1.setFormLineDashEffect(new DashPathEffect(new float[]{10f, 5f}, 0f));
             set1.setFormSize(15.f);
-            if (Utils.getSDKInt() >= 18) {
-                //Drawable drawable = ContextCompat.getDrawable(this, R.drawable.fade_blue);
-                //set1.setFillDrawable(drawable);
-            } else {
-                set1.setFillColor(Color.BLUE);
-                set2.setFillColor(Color.RED);
-            }
+            set1.setFillColor(Color.BLUE);
+            set2.setFillColor(Color.RED);
             ArrayList<ILineDataSet> dataSets = new ArrayList<>();
             dataSets.add(set1);
             dataSets.add(set2);
@@ -135,6 +140,9 @@ public class LocationDetailsActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Remove a given location from favorites in SharedPreferences.
+     */
     public void removeFromFavorites(View v){
         SharedPreferences pref =  getApplicationContext().getSharedPreferences("User", Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = pref.edit();

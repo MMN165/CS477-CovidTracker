@@ -6,7 +6,6 @@
     android:layout_height="match_parent"
     tools:context=".ui.home.HomeFragment"
     android:orientation="vertical">
-    <!--android:layout test_gravity="center" -->
     <TextView
         android:id="@+id/API_Call_notif"
         android:layout_width="match_parent"
@@ -80,6 +79,12 @@
                 card_view:layout_constraintEnd_toEndOf="parent"/>
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.cardview.widget.CardView>
+    <TextView
+        android:id="@+id/debug"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Please wait, the API will get the statistics shortly."
+        android:visibility="gone"/>
     <androidx.recyclerview.widget.RecyclerView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

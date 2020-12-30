@@ -63,29 +63,19 @@ public class HomeFragment extends Fragment {
 
     private HomeViewModel homeViewModel;
 
+    // permissions
     private static final int PERMISSIONS_REQUEST_CODE = 34;
+
+    // location shared preferences
     SharedPreferences userLocation;
     SharedPreferences.Editor userLocationEditor;
-    public static final String homeLoc = "homeLoc_key";
-    public static final String currentLoc = "currentLoc_key";
-
-
     public static final String countyKey = "county_key";
     public static final String stateKey = "state_key";
 
-    SharedPreferences userPreference; // like light/dark mode, etc
-    SharedPreferences.Editor userPreferenceEditor;
-    public static final String colorMode = "colorMode_key";
 
 
-    SharedPreferences deviceLocation;
 
-    private FusedLocationProviderClient fusedLocationClient;
-    private LocationRequest mLocationRequest;
-    private LocationCallback mlocationCallback;
-    private LocationSettingsRequest.Builder builder;
-    private static final int REQUEST_CHECK_SETTINGS = 102;
-
+    // location
     LocationManager locationManager;
     LocationListener locationListener;
 
@@ -95,13 +85,17 @@ public class HomeFragment extends Fragment {
     String county = "";
     String state = "";
 
-    //Recommiting
+    /**
+     * Fetch is an Async task that fetches Covidti API and setting values and list views as such.
+     */
     private class fetch extends AsyncTask {
 
+
+        /**
+         * Getting the Data
+         */
         @Override
         protected Object doInBackground(Object[] objects) {
-           //String county = (String) objects[0];
-           //  String state = (String) objects[1];
             try {
                 OkHttpClient client = new OkHttpClient();
                 client.setConnectTimeout(30, TimeUnit.SECONDS);
@@ -139,17 +133,21 @@ public class HomeFragment extends Fragment {
             }
 
 
-            return 0;
+            return new Pair<Integer, Integer>(0, 0);
         }
 
+        /**
+         * After we are done, we set our local location card to responded values.
+         */
         @Override
         protected void onPostExecute(Object result) {
-            Pair<Integer, Integer> test = (Pair) result;
-            currentCases.setText("" + test.first);
-            currentDeaths.setText("" + test.second);
-            mAdapter.notifyDataSetChanged();
-            api_call_notif.setVisibility(View.GONE);
-
+            Pair<Integer, Integer> result2 = (Pair) result;
+            if(getActivity() != null){
+                currentCases.setText("" + result2.first);
+                currentDeaths.setText("" + result2.second);
+                mAdapter.notifyDataSetChanged();
+                api_call_notif.setVisibility(View.GONE);
+            }
         }
 
     }
@@ -166,30 +164,19 @@ public class HomeFragment extends Fragment {
     private locationAdapter mAdapter;
     private LinearLayoutManager mLayoutManager;
     ArrayList<cardLocation> locationList;
-    TextView api_call_notif;
+    TextView api_call_notif, debug;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
         homeViewModel = ViewModelProviders.of(this).get(HomeViewModel.class);
         View root = inflater.inflate(R.layout.fragment_home, container, false);
 
-        // -----------------------------------------------------------------------------------------
-
-        // --------------------------------------------------------------------------------------
-
-
-        CardView textView = root.findViewById(R.id.local_dest);
-
-
-        //ArrayList<String> testStr =
-        //String local = locations.getString("local")
-
         currentCases = root.findViewById(R.id.currentCases);
         currentDeaths = root.findViewById(R.id.currentDeaths);
         localCard = root.findViewById(R.id.local_dest);
         api_call_notif = root.findViewById(R.id.API_Call_notif);
-        // final String[] locationParams = {"Arlington", "Virginia"};
 
+	// set defaults in case of null
         if (county == null || state == null) {
             county = "Fairfax";
             state = "Virginia";
@@ -197,24 +184,28 @@ public class HomeFragment extends Fragment {
             county = "Fairfax";
             state = "Virginia";
         }
+        debug = root.findViewById(R.id.debug);
 
         /**
          * Get the current device's location.
          */
-       // getDeviceLocation();
+        getDeviceLocation();
         final String[] locationParams = {county, state};
         lt = root.findViewById(R.id.info_text);
 
         // lt.setText("" + "Arlington" + ", " + "Virginia");
         lt.setText("" + county + ", " + state);
 
-
+        /**
+         * Setting our custom card view and using our own adapter.
+         */
         locationList = new ArrayList<>();
-        //locationList.add(new cardLocation(0, 0, "Fairfax", "Virginia"));
-        //locationList.add(new cardLocation(0, 0, "King", "Washington"));
         mRecyclerView = root.findViewById(R.id.favorites_list);
         pref = this.getActivity().getSharedPreferences("User", Context.MODE_PRIVATE);
         Set<String> test = pref.getStringSet("favorites", null);
+        /**
+         * Getting the shared preferences to grab the favorites set so we can grab information on them.
+         */
         if(test != null) {
             for (String x : test) {
                 String[] spliter = x.split(", ", 2);
@@ -225,9 +216,6 @@ public class HomeFragment extends Fragment {
             mRecyclerView.setVisibility(View.INVISIBLE);
             Toast.makeText(getActivity(), "The favorites list is currently empty. Please go to search to add to your favorites.", Toast.LENGTH_LONG).show();
         }
-        // locationList.add(new cardLocation(0, 0, "Prince William", "Virginia"));
-
-        //mRecyclerView.setHasFixedSize(true);
         mLayoutManager = new LinearLayoutManager(this.getContext());
         mAdapter = new locationAdapter(locationList);
         mRecyclerView.setLayoutManager(mLayoutManager);
@@ -236,6 +224,9 @@ public class HomeFragment extends Fragment {
         DividerItemDecoration divider = new DividerItemDecoration(mRecyclerView.getContext(), mLayoutManager.getOrientation());
         mRecyclerView.addItemDecoration(divider);
 
+        /**
+         * These 2 methods call LocationDetailsActivity. One from the list, the other from the Local location card.
+         */
         mAdapter.setOnItemClickListener(new locationAdapter.onItemClickListener() {
             @Override
             public void onItemClick(int position) {
@@ -243,14 +234,10 @@ public class HomeFragment extends Fragment {
                 intent.putExtra(CASESPASS, locationList.get(position).history);
                 intent.putExtra(ISLOCAL, false);
                 intent.putExtra(LOCATIONCUR, locationList.get(position).getLocation());
-                //intent.putExtra("name", locationList.get(position).getCounty());
                 startActivity(intent);
-                //locationList.get(position).changeLocation("Clicked");
-                //mAdapter.notifyItemChanged(position);
             }
         });
 
-        //Hurting
         localCard.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -258,21 +245,15 @@ public class HomeFragment extends Fragment {
                 intent.putExtra(CASESPASS, localHistory);
                 intent.putExtra(ISLOCAL, true);
                 intent.putExtra(LOCATIONCUR, "" + locationParams[0] + ", " + locationParams[1]);
-                //intent.putExtra("name", locationList.get(position).getCounty());
                 startActivity(intent);
             }
         });
 
+        /**
+         * Call our Async task to fetch data from the API.
+         */
         new fetch().execute(locationParams);
         return root;
-    }
-
-    public void refresh() {
-        //new fetch().execute(locationParams);
-    }
-
-    void getLocations() {
-        locclient = LocationServices.getFusedLocationProviderClient(this.getActivity());
     }
 
     @Override
@@ -281,20 +262,19 @@ public class HomeFragment extends Fragment {
     }
 
 
-    // ------------------------> Location Stuff
+    // ------------------------> Local Location
 
-    private boolean checkPermissions() {
+    private boolean checkPermissions() { // check
         int permissionState = ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION);
         int permissionState2 = ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION);
         return (permissionState & permissionState2) == PackageManager.PERMISSION_GRANTED;
     }
 
-    private void startLocationPermissionRequest() {
+    private void startLocationPermissionRequest() { // ask
         ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION}, PERMISSIONS_REQUEST_CODE);
     }
 
-    // Function to check and request permission.
-    public void checkPermission(String permission, int requestCode) {
+    public void checkPermission(String permission, int requestCode) { // check and request permission.
         if (ContextCompat.checkSelfPermission(getActivity(), permission) == PackageManager.PERMISSION_DENIED) {
             // Requesting the permission
             ActivityCompat.requestPermissions(getActivity(), new String[]{permission}, requestCode);
@@ -303,59 +283,130 @@ public class HomeFragment extends Fragment {
         }
     }
 
-    // This function is called when the user accepts or decline the permission.
-    // Request Code is used to check which permission called this function.
-    // This request code is provided when the user is prompt for permission.
-    public void onRequestPermissionsResult(int requestCode, String permissions[],
-                                           int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
         switch (requestCode) {
             case 1: {
-                // If request is cancelled, the result arrays are empty.
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    // idk
                 } else {
-                    // permission denied, boo! Disable the functionality that depends on this permission.
                 }
                 return;
             }
         }
     }
 
+    /**
+     * Gets the device Location. NOTE: We had varying degrees of success with Android 24 emulators. Success may vary. If unsuccessful, then it uses the default (Fairfax, VA) instead.
+     */
     public void getDeviceLocation() {
+        try {
+            startLocationPermissionRequest(); // check that the user accepted
 
-        startLocationPermissionRequest();
-        userLocation = getActivity().getApplicationContext().getSharedPreferences("User", Context.MODE_PRIVATE); // or 0 for private mode
-        userLocationEditor = userLocation.edit();
-        county = userLocation.getString(countyKey, "");
-        state = userLocation.getString(stateKey, "");
+	    // if the app has been run before, use the previously saved location from share preferences
+            userLocation = getActivity().getApplicationContext().getSharedPreferences("User", Context.MODE_PRIVATE); // or 0 for private mode
+            userLocationEditor = userLocation.edit();
+            county = userLocation.getString(countyKey, "");
+            state = userLocation.getString(stateKey, "");
 
-        Log.i("PRINT 1 BEGIN", county + ", " + state);
-        if (county.equals("") || state.equals("")) {
-            state = "Virginia";
-            county = "Fairfax";
-        }
-        Log.i("PRINT 2 BEGIN", county + ", " + state);
+            Log.i("PRINT 1 BEGIN", county + ", " + state);
+            if (county.equals("") || state.equals("")) {
+                state = "Virginia";
+                county = "Fairfax";
+            }
+            Log.i("PRINT 2 BEGIN", county + ", " + state);
 
-        locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
-        if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-                ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            startLocationPermissionRequest();
-        }
+            locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
+            if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                    ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                startLocationPermissionRequest();
+            }
 
-        locationListener = new LocationListener() {
-            @Override
-            public void onLocationChanged(Location location) {
-                Log.i("PRINT ON LOCATION CHANGED", location.getLatitude() + " " + location.getLongitude());
+	    // allows access to location services
+            locationListener = new LocationListener() { // will use the data of the new location
 
-                latitude = location.getLatitude();
-                longitude = location.getLongitude();
+                /**
+                 * Empty so this can work on Android 24. Seems that our location method
+                 */
+                @Override
+                public void onStatusChanged(String s, int i, Bundle bundle) {
 
-                Geocoder geocoder = new Geocoder(getContext());
+                }
+
+                @Override
+                public void onProviderEnabled(String s) {
+
+                }
+
+                @Override
+                public void onProviderDisabled(String s) {
+
+                }
+                @Override
+                public void onLocationChanged(Location location) {
+                    Log.i("PRINT ON LOCATION CHANGED", location.getLatitude() + " " + location.getLongitude());
+
+                    latitude = location.getLatitude();
+                    longitude = location.getLongitude();
+
+                    Geocoder geocoder = new Geocoder(getContext());
+                    List<Address> geocodeMatches = null;
+                    try { // get geocode stuff
+                        geocodeMatches = geocoder.getFromLocation(latitude, longitude, 1); // Here 1 represent max location result to returned, by documents it recommended 1 to 5
+                        Log.e("geocodematches", geocodeMatches.toString());
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+
+	    	    // can get a info from address, such as country, zip, state, etc
+                    if (geocodeMatches != null && !geocodeMatches.isEmpty()) {
+                        String adminArea = geocodeMatches.get(0).getAdminArea(); // state
+                        state = adminArea;
+                        String subAdminArea = geocodeMatches.get(0).getSubAdminArea(); // county
+                        county = subAdminArea;
+
+			// if either are null, use the one saved in shared preferences
+                        if(county == null || state == null){
+                            county = userLocation.getString(countyKey, "Fairfax");
+                            state =  userLocation.getString(stateKey, "Virginia");
+                        }
+
+			// since the api will have "Fairfax" instead of "Fairfax County",
+			// remove the "County" and trim() will remove leading and trailing spaces
+                        if (county.contains("County")) {
+                            county = county.replaceAll("County", "");
+                            county = county.trim();
+                        }
+
+                        Log.i("PRINT 12", county);
+
+			// update shared preferences with non-null values
+                        userLocationEditor.putString(countyKey, county);
+                        userLocationEditor.putString(stateKey, state);
+                        userLocationEditor.commit();
+
+                    }
+
+                    Log.i("PRINT 8", "Location: " + county + ", " + state);
+                }
+            };
+
+            Log.i("PRINT PERM ", Boolean.toString(checkPermissions()));
+            if (checkPermissions()) { // check that the user accepted location permissions
+                locationManager.requestSingleUpdate(LocationManager.GPS_PROVIDER, locationListener, null);
+                Location lastKnownLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+
+                longitude = lastKnownLocation.getLongitude();
+                latitude = lastKnownLocation.getLatitude();
+
+                Log.i("PRINT CHECK PERM", Double.toString(longitude) + ", " + Double.toString(latitude));
+
+                List<Address> addresses;
+                Geocoder geocoder = new Geocoder(getContext(), Locale.getDefault());
+
                 List<Address> geocodeMatches = null;
-                try { // get geocode stuff
-                    geocodeMatches = geocoder.getFromLocation(latitude, longitude, 1); // Here 1 represent max location result to returned, by documents it recommended 1 to 5
+                try { // get geocode stuff, get one address max from lat and long
+                    geocodeMatches = new Geocoder(getContext()).getFromLocation(latitude, longitude, 1);
                     Log.e("geocodematches", geocodeMatches.toString());
-                } catch (IOException e) { // TODO Auto-generated catch block
+                } catch (IOException e) {
                     e.printStackTrace();
                 }
 
@@ -365,75 +416,40 @@ public class HomeFragment extends Fragment {
                     String subAdminArea = geocodeMatches.get(0).getSubAdminArea(); // county
                     county = subAdminArea;
 
-                    if (county.contains("County")) {
+                    if(county == null || state == null){ // use shared preferences if either are null
+                        county = userLocation.getString(countyKey, "Fairfax");
+                        state =  userLocation.getString(stateKey, "Virginia");
+                    }
+                    if (county.contains("County")) { // same as above, remove "County" and extra spaces
+                        String temp;
                         county = county.replaceAll("County", "");
                         county = county.trim();
                     }
 
-                    Log.i("PRINT 12", county);
-
+		    // update shared preferences
                     userLocationEditor.putString(countyKey, county);
                     userLocationEditor.putString(stateKey, state);
                     userLocationEditor.commit();
 
+                    Log.i("PRINT 7", "Location: " + county + ", " + state);
+                } else { // defaults
+                    county = "Fairfax";
+                    state = "Virginia";
+                    startLocationPermissionRequest();
                 }
 
-                Log.i("PRINT 8", "Location: " + county + ", " + state);
+                Log.i("PRINT 3", "Location: " + county + ", " + state);
             }
-        };
-
-        Log.i("PRINT PERM ", Boolean.toString(checkPermissions()));
-        if (checkPermissions()) {
-            locationManager.requestSingleUpdate(LocationManager.GPS_PROVIDER,  locationListener, null);
-            //  minTimeMs (long): minimum time interval between location updates in milliseconds
-            // minDistanceM (float): minimum distance between location updates in meters
-            Location lastKnownLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-
-            longitude = lastKnownLocation.getLongitude();
-            latitude = lastKnownLocation.getLatitude();
-
-            Log.i("PRINT CHECK PERM", Double.toString(longitude) + ", " + Double.toString(latitude));
-
-
-            Log.i("PRINT WHY", "WHY");
-
-            List<Address> addresses;
-            Geocoder geocoder = new Geocoder(getContext(), Locale.getDefault());
-
-            List<Address> geocodeMatches = null;
-            try { // get geocode stuff
-                geocodeMatches = new Geocoder(getContext()).getFromLocation(latitude, longitude, 1);
-                Log.e("geocodematches", geocodeMatches.toString());
-            } catch (IOException e) { // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-
-            if (geocodeMatches != null && !geocodeMatches.isEmpty()) {
-                String adminArea = geocodeMatches.get(0).getAdminArea(); // state
-                state = adminArea;
-                String subAdminArea = geocodeMatches.get(0).getSubAdminArea(); // county
-                county = subAdminArea;
-
-                if (county.contains("County")) {
-                    String temp;
-                    county = county.replaceAll("County", "");
-                    county = county.trim();
-                }
-                userLocationEditor.putString(countyKey, county);
-                userLocationEditor.putString(stateKey, state);
-                userLocationEditor.commit();
-
-                Log.i("PRINT 7", "Location: " + county + ", " + state);
-                // Log.i("LOCATE", lastKnownLocation.getLatitude() + " " + lastKnownLocation.getLongitude());
-            } else {
-                county = "Fairfax";
-                state = "Virginia";
-                startLocationPermissionRequest(); // ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_l_LOCATION}, 1);
-            }
-
-            Log.i("PRINT 3", "Location: " + county + ", " + state);
+        }catch(NullPointerException e){
+            /**
+             * We had issues with null pointers for county and list before, so if anything happens we just set our default county and state.
+             */
+            county = "Fairfax";
+            state = "Virginia";
         }
 
 
     }
+
+
 }

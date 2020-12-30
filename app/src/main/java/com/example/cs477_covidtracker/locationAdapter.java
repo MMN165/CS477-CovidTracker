@@ -9,15 +9,22 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
-//Recommiting
-public class locationAdapter extends RecyclerView.Adapter<locationAdapter.ExampleViewHolder> {
+
+/**
+ * Custom Adapter to be used with our card view recycle view. Sets all values here for the card.
+ */
+public class locationAdapter extends RecyclerView.Adapter<locationAdapter.CardViewHolder> {
     private ArrayList<cardLocation> mLocationInfo;
     private onItemClickListener clickListener;
-    public static class ExampleViewHolder extends RecyclerView.ViewHolder{
+
+    /**
+     * Nested class that finds the card view and holds it.
+     */
+    public static class CardViewHolder extends RecyclerView.ViewHolder{
         public TextView location;
         public TextView mCases, mDeaths;
 
-        public ExampleViewHolder(@NonNull View itemView, final onItemClickListener listener) {
+        public CardViewHolder(@NonNull View itemView, final onItemClickListener listener) {
             super(itemView);
             location = itemView.findViewById(R.id.location_text2);
             mCases = itemView.findViewById(R.id.currentCases2);
@@ -38,7 +45,7 @@ public class locationAdapter extends RecyclerView.Adapter<locationAdapter.Exampl
     }
 
     /**
-     * OnItemClickListener Interface
+     * OnItemClickListener Interface. For onItemClick
      */
     public interface onItemClickListener{
         void onItemClick(int position);
@@ -48,24 +55,24 @@ public class locationAdapter extends RecyclerView.Adapter<locationAdapter.Exampl
         clickListener = listener;
     }
 
-
     public locationAdapter(ArrayList<cardLocation> lister){
         mLocationInfo = lister;
     }
 
     @NonNull
     @Override
-    public ExampleViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public CardViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.location_information_card, parent, false);
-        ExampleViewHolder evh = new ExampleViewHolder(v, clickListener);
+        CardViewHolder evh = new CardViewHolder(v, clickListener);
         return evh;
     }
 
+    /**
+     * Setting values into a card.
+     */
     @Override
-    public void onBindViewHolder(@NonNull ExampleViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull CardViewHolder holder, int position) {
             cardLocation currentItem = mLocationInfo.get(position);
-
-            //holder.location.setText(currentItem.getLocation());
 
             holder.location.setText("" + currentItem.getCounty() + ", " + currentItem.getState());
             holder.mDeaths.setText("" + currentItem.getCurrentDeath());

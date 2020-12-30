@@ -14,9 +14,7 @@ import androidx.fragment.app.DialogFragment;
 import java.util.HashSet;
 import java.util.Set;
 
-//For unsaved changes in add/edit workouts. Recommiting
 public class resetAlertDialog extends DialogFragment {
-    public static SharedPreferences sharedPref;
     public static resetAlertDialog newInstance(String title){
         DialogFragment dialog = new resetAlertDialog();
         Bundle args = new Bundle();
@@ -28,8 +26,7 @@ public class resetAlertDialog extends DialogFragment {
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState){
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        //sharedPref = this.getActivity().getSharedPreferences("pref", Context.MODE_PRIVATE);
-        builder.setMessage("You are resetting all settings to default and erasing all preferences. Do you want to continue?")
+        builder.setMessage("You are clearing all of your favorites. Do you want to continue?")
                 .setPositiveButton("Reset", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {

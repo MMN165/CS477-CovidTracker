@@ -31,6 +31,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+/**
+ * Search Fragment. This covers lookup.
+ */
 public class SearchFragment extends Fragment {
 
     public static final String COUNTY = "com.example.cs477_covidtracker.COUNTYPASS";
@@ -64,7 +67,9 @@ public class SearchFragment extends Fragment {
 
         new Async().execute();
         // ?
-
+        /**
+         * Adding states to apply to hashmap
+         */
         states.add("Alabama");
         states.add("Alaska");
         states.add("Arizona");
@@ -134,6 +139,7 @@ public class SearchFragment extends Fragment {
         protected Object doInBackground(Object[] objects) {
             try {
                 map = jsonParser.filterCounties();
+
             } catch (IOException e) {
                 e.printStackTrace();
             } catch (JSONException e) {
@@ -142,55 +148,55 @@ public class SearchFragment extends Fragment {
             return null;
         }
 
+        /**
+         * On Post Execute, we set our listadapter and spinners to account for the newly acquired information.
+         */
         @Override
         protected void onPostExecute(Object result) {
 
             List<String> x = map.get("Alabama");
             selectedState = "Alabama";
-            listAdapter = new ArrayAdapter<String>(getActivity().getApplicationContext(), android.R.layout.simple_list_item_1, x);
-            listView.setAdapter(listAdapter);
-            listAdapter.notifyDataSetChanged();
+            if(getActivity() != null) {
+                listAdapter = new ArrayAdapter<String>(getActivity().getApplicationContext(), android.R.layout.simple_list_item_1, x);
+                listView.setAdapter(listAdapter);
+                listAdapter.notifyDataSetChanged();
 
-            stateSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-                @Override
-                public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                stateSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                    @Override
+                    public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
 
-                    selectedState = adapterView.getItemAtPosition(i).toString();
+                        selectedState = adapterView.getItemAtPosition(i).toString();
 
-                    Log.i("PRINT 1", "Selected State: " + selectedState);
+                        Log.i("PRINT 1", "Selected State: " + selectedState);
 
-                    List<String> x = map.get(selectedState); // list of counties
+                        List<String> x = map.get(selectedState); // list of counties
 
-                    listAdapter = new ArrayAdapter<String>(getActivity().getApplicationContext(), android.R.layout.simple_list_item_1, x);
-                    listView.setAdapter(listAdapter);
-                    listAdapter.notifyDataSetChanged();
+                        listAdapter = new ArrayAdapter<String>(getActivity().getApplicationContext(), android.R.layout.simple_list_item_1, x);
+                        listView.setAdapter(listAdapter);
+                        listAdapter.notifyDataSetChanged();
 
-                }
+                    }
 
-                @Override
-                public void onNothingSelected(AdapterView<?> adapterView) {
-                    // shouldn't do anything, will set a default
-                }
-            });
+                    @Override
+                    public void onNothingSelected(AdapterView<?> adapterView) {
+                    }
+                });
 
-            listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
-                    List<String> x = map.get(selectedState);
-                    selectedCounty = x.get(position);
+                        List<String> x = map.get(selectedState);
+                        selectedCounty = x.get(position);
 
-                    Intent intent = new Intent(getActivity(), LocationDetailsSearchActivity.class);
-                    intent.putExtra(LOCATIONCUR, "" + selectedCounty + ", " + selectedState );
-                    intent.putExtra(COUNTY, selectedCounty);
-                    intent.putExtra(STATE, selectedState);
-                    //intent.putExtra("name", locationList.get(position).getCounty());
-                    startActivity(intent);
+                        Intent intent = new Intent(getActivity(), LocationDetailsSearchActivity.class);
+                        intent.putExtra(LOCATIONCUR, "" + selectedCounty + ", " + selectedState);
+                        intent.putExtra(COUNTY, selectedCounty);
+                        intent.putExtra(STATE, selectedState);
+                        startActivity(intent);
 
-
-                    //Log.i("PRINT 2", "Selected County: " + selectedCounty);
-
-                }
-            });
+                    }
+                });
+            }
         }
     }
 

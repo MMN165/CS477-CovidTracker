@@ -1,22 +1,19 @@
 package com.example.cs477_covidtracker;
 
 import java.util.ArrayList;
-//Recommiting
+
+/**
+ * cardLocation is the object that stores the information on the current location, along with current cases and deaths. To be used in tangent with our custom adapter and recycle view.
+ */
 public class cardLocation {
     private int currentcase, currentDeath;
-    private String mLocation, mCounty, mState;
+    private String  mCounty, mState;
     public ArrayList<int[]> history;
     public cardLocation(int cc, int cd, String county, String state){
         currentcase = cc;
         currentDeath = cd;
-        //mLocation = location;
         mCounty = county;
         mState = state;
-    }
-
-    public void changeLocation(String text){
-       // mLocation = text;
-        mCounty = text;
     }
 
     public String getLocation(){

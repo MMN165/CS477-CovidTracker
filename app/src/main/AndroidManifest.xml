@@ -13,18 +13,22 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".LocationDetailsSearchActivity"></activity>
-        <activity android:name=".ui.home.LocationDetailsActivity" />
+        <activity android:name=".LocationDetailsSearchActivity"
+            android:screenOrientation="portrait"></activity>
+        <activity android:name=".ui.home.LocationDetailsActivity"
+            android:screenOrientation="portrait"/>
         <activity
             android:name=".MainActivity2"
-            android:label="@string/title_activity_main2">
+            android:label="@string/title_activity_main2"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".MainActivity" />
+        <activity android:name=".MainActivity"
+            android:screenOrientation="portrait"/>
     </application>
 
 </manifest>

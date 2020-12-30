@@ -19,49 +19,27 @@ import androidx.lifecycle.ViewModelProviders;
 import com.example.cs477_covidtracker.R;
 import com.example.cs477_covidtracker.resetAlertDialog;
 
+/**
+ * Settings. Only setting fully implemented is resetting favorites.
+ */
 public class SettingsFragment extends Fragment {
 
     private NotificationsViewModel notificationsViewModel;
 
 
-    ImageButton darkMode, reset, changeLocation;
-    private boolean isdarkMode = false;
+    ImageButton darkMode, reset;
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
         notificationsViewModel =
                 ViewModelProviders.of(this).get(NotificationsViewModel.class);
         View root = inflater.inflate(R.layout.fragment_notifications, container, false);
-        /*final TextView textView = root.findViewById(R.id.text_notifications);
-        notificationsViewModel.getText().observe(getViewLifecycleOwner(), new Observer<String>() {
-            @Override
-            public void onChanged(@Nullable String s) {
-                textView.setText(s);
-            }
-        });*/
        darkMode = root.findViewById(R.id.darkmode);
-
-        darkMode.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if(!isdarkMode) {
-                    isdarkMode = true;
-                    AppCompatDelegate
-                            .setDefaultNightMode(
-                                    AppCompatDelegate
-                                            .MODE_NIGHT_YES);
-                }
-                else{
-                    isdarkMode = false;
-                    AppCompatDelegate
-                            .setDefaultNightMode(
-                                    AppCompatDelegate
-                                            .MODE_NIGHT_NO);
-                }
-            }
-        });
 
         reset = root.findViewById(R.id.reset);
 
+        /**
+         * Reset calls the Alert Reset Dialog.
+         */
         reset.setOnClickListener(new View.OnClickListener(){
 
             @Override
@@ -73,11 +51,4 @@ public class SettingsFragment extends Fragment {
         });
         return root;
     }
-
-    public void resetAlert(View root){
-
-    }
-    //public void toggleDarkMode(View v){
-
-    //}
 }

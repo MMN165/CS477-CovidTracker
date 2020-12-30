@@ -12,6 +12,10 @@ import androidx.navigation.ui.NavigationUI;
 
 public class MainActivity2 extends AppCompatActivity {
 
+    /**
+     * Our navigation bar activity.
+     * @param savedInstanceState
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -26,5 +30,6 @@ public class MainActivity2 extends AppCompatActivity {
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
         NavigationUI.setupWithNavController(navView, navController);
     }
+
 
 }
